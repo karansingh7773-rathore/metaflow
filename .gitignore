@@ -35,3 +35,16 @@ stubs/version.py
 
 # devtools
 .devtools
+
+# Virtual environments
+linux-venv/
+metaflow/metaflow-env/
+venv/
+.venv/
+
+# Debug/test scripts (local only)
+debug_flow*.sh
+test_vm.sh
+run_flow.sh
+test_e2e.sh
+*_output.txt

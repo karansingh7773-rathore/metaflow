@@ -150,7 +150,7 @@ if "decospecs" in top_params and top_params["decospecs"]:
 
 **Problem:** Metaflow relies on many `METAFLOW_*` env vars plus identity vars (`USER`, `HOME`) for correct operation. The container doesn't inherit these.
 
-**Solution:** Auto-forward all `METAFLOW_*` host env vars, plus `USER`, `USERNAME`, `HOME`, `LOGNAME` into the container's `containerEnv`.
+**Solution:** Auto-forward all `METAFLOW_*` host env vars, plus `USER`, `USERNAME`, `HOME`, `LOGNAME` into the container's `containerEnv`. To ensure full environment parity, the generator will also pass-through host-level credentials (e.g., `AWS_*` or `AZURE_*` env vars) to allow the sandboxed step to interact with remote metadata services if configured.
 
 ---
 
@@ -188,6 +188,8 @@ Three escalating sandbox isolation levels via Docker security primitives:
 | `none` | All | Allowed | On | Read-Write | Unlimited |
 | `standard` | `--cap-drop=ALL` | `--no-new-privileges` | `--network=none` | R/W | Unlimited |
 | `strict` | Dropped | Blocked | Off | `--read-only` | 4096 |
+
+The `strict` level also includes a `--pids-limit=4096` to prevent fork-bomb style attacks within the local executor.
 
 Usage:
 ```python
@@ -249,12 +251,31 @@ class DevcontainerRealFlow(FlowSpec):
 ## 8. About Me
 
 **Karan Singh Rathore**
+GitHub: [@karansingh7773-rathore](https://github.com/karansingh7773-rathore)
 
-- **GitHub Contributions to Metaflow:**
-  - [PR: Fix `decompress_list` multi-colon path crash](https://github.com/Netflix/metaflow/pulls) — Fixed a `ValueError` in the path decompression utility that affected Airflow and Argo integrations.
-  - Working prototype of the `@devcontainer` decorator (this proposal)
-- **Technical Skills:** Python, Docker, Linux, CI/CD, TypeScript, Rust
-- **Open Source:** Active contributor, experienced with Git-based workflows and code review
+### Contributions to Netflix/metaflow (4 PRs)
+
+| PR | Type | Description |
+|---|---|---|
+| [**#2117** — Add support for Parameters of type enum](https://github.com/Netflix/metaflow/pull/2117) | Feature | Added `enum` type support to Metaflow's `Parameter` system. +237/-2 lines, 17 comments of code review. |
+| [**#2908** — Fix `decompress_list` crashes on multi-colon input paths](https://github.com/Netflix/metaflow/pull/2908) | Bug fix | Fixed a `ValueError` in the path decompression utility that affected Airflow and Argo integrations. Included E2E tests with chaos testing. |
+| [**#2873** — Raise clear error when `@timeout` is used on Windows](https://github.com/Netflix/metaflow/pull/2873) | Bug fix | Replaced a cryptic `signal.SIGALRM` crash with a descriptive `MetaflowException` for Windows users. |
+| [**#2791** — Prevent packaging exclusion of files under hidden root ancestors](https://github.com/Netflix/metaflow/pull/2791) | Bug fix | Fixed silent file exclusion in `metaflow/packaging_sys/utils.py` when the flow path contained a hidden directory ancestor. |
+
+### Why This Project
+
+I chose this project because I believe in bridging the gap between **local development** and **production execution**. The devcontainer spec is the right abstraction — it's already battle-tested in VS Code, Codespaces, and DevPod. Bringing it to Metaflow means data scientists get reproducible, isolated environments without needing a Kubernetes cluster.
+
+My contributions above demonstrate:
+- **Feature development:** Building a new capability end-to-end (#2117)
+- **Deep codebase knowledge:** Debugging edge cases in utilities, packaging, and decorators (#2908, #2791, #2873)
+- **Production thinking:** Every PR includes proper error handling and tests
+
+My experience in resolving the multi-colon path crash in `util.py` (PR #2908) gave me deep insight into Metaflow's internal CLI routing, which I have directly applied to the `@devcontainer` interception logic.
+
+### Technical Skills
+
+Python, Docker, Linux, CI/CD, TypeScript, Rust, Git workflows, code review
 
 ---
 
